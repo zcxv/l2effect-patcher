@@ -11,6 +11,6 @@ public enum EAttachMethod {
 	EAM_BoneSpecified, // attach to this.AttachBoneName
 	EAM_AliasSpecified, // attach to TagAlias(AttachBoneName);
 	EAM_Trail, // don't attach, trail the targetactor( assume physics of the emitter is PHYS_Trailer )
-	EAM_RF, 
+	EAM_RF, //feet
 	EAM_LF;
 }

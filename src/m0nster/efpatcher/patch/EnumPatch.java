@@ -14,27 +14,26 @@ public class EnumPatch extends Patch {
 		String[] entry = value.split("\\.");
 		Class<?> clazz;
 		try {
-			clazz = Class.forName("ru.pointer.efpatcher.enums." + entry[0]);
+			clazz = Class.forName("m0nster.efpatcher.enums." + entry[0]);
 		} catch (ClassNotFoundException e1) {
-			out("Enum " + entry[0] + " not found");
-			return;
+			throw new RuntimeException("Enum " + entry[0] + " not found");
 		}
 		
 		Class<? extends Enum> eclazz = clazz.asSubclass(Enum.class);
-		byte bValue = 0;
+		int bValue = -1;
 		for(Enum e : eclazz.getEnumConstants()) {
 			if(e.name().equals(entry[1])) {
-				bValue = (byte) e.ordinal();
+				bValue = e.ordinal();
 				break;
 			}
 		}
 		
-		if(bValue < 1) {
-			out("Value " + entry[1] + " in " + entry[0] + " not found");
-			return;
+		if(bValue < 0) {
+			throw new RuntimeException("Value " + entry[1] + " in " + entry[0] + " not found");
 		}
 		
 		property.putAt(0, bValue);
+		
 	}
 
 }

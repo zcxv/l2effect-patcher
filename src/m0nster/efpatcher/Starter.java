@@ -34,7 +34,7 @@ public class Starter {
 		String reqField = "AttachOn";
 		String replace = "LineageEffect.su_sleep_ta";
 		String file = "skill.usk";
-		boolean showAll = true;
+		boolean showAll = false;
 		
 		for(int i = 0; i < args.length; i++) {
 			if(args[i].equals("-show")) {
@@ -62,7 +62,6 @@ public class Starter {
 				upf.getExportTable().forEach(view);
 				
 				out("-- Read depends");
-				
 				ObjectFactory oFactory = new ObjectFactory(classLoader);
 				final String objectName = reqObjectName;
 				AsIsObject uobj = upf.getExportTable().stream().
@@ -73,7 +72,6 @@ public class Starter {
 					out("Object not found");
 					return;
 				}
-				
 				out("-----------");
 				
 				out(uobj.getEntry().getObjectInnerFullName());
@@ -102,6 +100,7 @@ public class Starter {
 		ObjectFactory oFactory = new ObjectFactory(classLoader);
 		
 		try (UnrealPackageFile upf = new UnrealPackageFile(skillFile, false)) {
+			out("-- Read depends");
 			final String objectName = reqObjectName;
 			AsIsObject uobj = upf.getExportTable().stream().
 					filter(entry -> entry.getObjectInnerFullName().equals(objectName)).findAny().
@@ -111,6 +110,8 @@ public class Starter {
 				out("Object not found");
 				return;
 			}
+			out("-----------");
+			
 			out(uobj.getEntry().getObjectInnerFullName());
 			out(printData(uobj.getEntry().getObjectRawDataExternally()));
 			
@@ -119,7 +120,12 @@ public class Starter {
 				if(prop.getName().equals(reqField)) {
 					out("\t" + prop.toString());
 					Patch patch = createPatch(prop);
-					patch.patch(upf, prop, replace);
+					try {
+						patch.patch(upf, prop, replace);
+					} catch(RuntimeException e) {
+						out("Fail: " + e.getMessage());
+						return;
+					}
 					out("OK");
 					break;
 				}

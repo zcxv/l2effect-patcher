@@ -12,8 +12,6 @@ public abstract class Patch {
 	
 	
 	
-	
-	
 	protected void printf(String line, Object...args) {
 		System.out.printf(line, args);
 	}

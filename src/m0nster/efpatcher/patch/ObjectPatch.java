@@ -18,8 +18,7 @@ public class ObjectPatch extends Patch {
 				.orElse(null);
 		
 		if(importEntry == null) {
-			out("Replaced effect not found");
-			return;
+			throw new RuntimeException("Replaced effect not found");
 		}
 		
 		out(importEntry.getObjectInnerFullName());
