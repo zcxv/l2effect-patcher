@@ -1,15 +1,27 @@
 package m0nster.efpatcher.patch;
 
+import java.util.List;
+
 import acmi.l2.clientmod.io.UnrealPackageFile;
 import acmi.l2.clientmod.unreal.classloader.L2Property;
+import acmi.l2.clientmod.unreal.objectfactory.AsIsObject;
 
 /**
  * @author PointerRage
  *
  */
 public abstract class Patch {
+	private List<AsIsObject> objects;
+	
 	public abstract void patch(UnrealPackageFile upf, L2Property property, String value);
 	
+	protected List<AsIsObject> getObjects() {
+		return objects;
+	}
+	
+	public void setObjects(List<AsIsObject> objects) {
+		this.objects = objects;
+	}
 	
 	
 	protected void printf(String line, Object...args) {

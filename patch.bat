@@ -14,7 +14,7 @@ REM тип того что менять
 SET field=EffectClass
 
 REM на что поменять
-SET effect=LineageEffect.su_sleep_ta
+SET replace=LineageEffect.su_sleep_ta
 
-java -cp ./efpatcher.jar;./io.jar ru.rage.efpatcher.Starter -object %object% -field %field% -effect %effect% -file %file%
+java -cp ./l2effect-patcher.jar m0nster.efpatcher.Starter -object %object% -field %field% -replace %replace% -file %file%
 pause

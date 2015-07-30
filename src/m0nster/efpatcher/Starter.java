@@ -6,8 +6,11 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import m0nster.efpatcher.patch.BytePatch;
 import m0nster.efpatcher.patch.EnumPatch;
+import m0nster.efpatcher.patch.NamePatch;
 import m0nster.efpatcher.patch.ObjectPatch;
 import m0nster.efpatcher.patch.Patch;
 import acmi.l2.clientmod.io.DataOutput;
@@ -75,12 +78,12 @@ public class Starter {
 				out("-----------");
 				
 				out(uobj.getEntry().getObjectInnerFullName());
-				out(printData(uobj.getEntry().getObjectRawDataExternally()));
+				out(Util.printData(uobj.getEntry().getObjectRawDataExternally()));
 				
 				List<L2Property> properties = uobj.getProperties();
 				for(L2Property prop : properties) {
 					out("\t" + prop.toString());
-					if(isReferenced(prop.getType())) {
+					if(Util.isReferenced(prop.getType())) {
 						int offset = (int)prop.getAt(0);
 						if(prop.getType() == Type.NAME) {
 							out(offset + "=" + upf.nameReference(offset));
@@ -102,10 +105,14 @@ public class Starter {
 		try (UnrealPackageFile upf = new UnrealPackageFile(skillFile, false)) {
 			out("-- Read depends");
 			final String objectName = reqObjectName;
-			AsIsObject uobj = upf.getExportTable().stream().
-					filter(entry -> entry.getObjectInnerFullName().equals(objectName)).findAny().
-					map(oFactory).map(raw -> (AsIsObject)raw).orElse(null);
-				
+			
+			List<AsIsObject> exports = upf.getExportTable().stream()
+				.map(oFactory)
+				.filter(e -> e instanceof AsIsObject)
+				.map(e -> (AsIsObject)e)
+				.collect(Collectors.toList());
+			
+			AsIsObject uobj = Util.findExport(exports, objectName);	
 			if(uobj == null) {
 				out("Object not found");
 				return;
@@ -113,13 +120,14 @@ public class Starter {
 			out("-----------");
 			
 			out(uobj.getEntry().getObjectInnerFullName());
-			out(printData(uobj.getEntry().getObjectRawDataExternally()));
+			out(Util.printData(uobj.getEntry().getObjectRawDataExternally()));
 			
 			List<L2Property> properties = uobj.getProperties();
 			for(L2Property prop : properties) {
 				if(prop.getName().equals(reqField)) {
 					out("\t" + prop.toString());
 					Patch patch = createPatch(prop);
+					patch.setObjects(exports);
 					try {
 						patch.patch(upf, prop, replace);
 					} catch(RuntimeException e) {
@@ -135,7 +143,7 @@ public class Starter {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				DataOutput dao = new DataOutputStream(baos, upf.getCharset());
 				classLoader.getPropertiesUtil().writeProperties(dao, properties, upf);
-				out(printData(baos.toByteArray()));
+				out(Util.printData(baos.toByteArray()));
 				((ExportEntry)uobj.getEntry()).setObjectRawData(baos.toByteArray(), true);
 			}
 			
@@ -144,78 +152,22 @@ public class Starter {
 	}
 	
 	private static Patch createPatch(L2Property property) {
-		if(property.getName().equals("AttachOn")) {
-			return new EnumPatch();
-		}
-		
 		switch (property.getType()) {
 		case OBJECT:
 			return new ObjectPatch();
-		default:
-			break;
-		}
-		
-		return null;
-	}
-	
-	private static boolean isReferenced(Type type) {
-		switch (type) {
-		case NONE:
 		case BYTE:
-		case INT:
-		case BOOL:
-		case FLOAT:
-		//case STRUCT:
-		//case VECTOR:
-		//case ROTATOR:
-			return false;
+			if(property.getName().equals("AttachOn")) {
+				return new EnumPatch();
+			}
+			return new BytePatch();
+		case NAME:
+			return new NamePatch();
 		default:
-			return true;
+			return null;
 		}
-	}
-	
-	private static void printf(String line, Object...args) {
-		System.out.printf(line, args);
-	}
-	
-	private static void out() {
-		System.out.println();
 	}
 	
 	private static void out(String s) {
 		System.out.println(s);
-	}
-	
-	private static String printData(byte[] data, int len) {
-		StringBuffer result = new StringBuffer();
-
-		int counter = 0;
-
-		for (int i = 0; i < len; i++) {
-			if (counter % 16 == 0)
-				result.append(fillHex(i, 4) + ": ");
-
-			result.append(fillHex(data[i] & 0xff, 2) + " ");
-			counter++;
-			if (counter == 16) {
-				result.append("\n");
-				counter = 0;
-			}
-		}
-
-		return result.toString();
-	}
-
-	private static String fillHex(int data, int digits) {
-		String number = Integer.toHexString(data);
-
-		for (int i = number.length(); i < digits; i++)
-			number = "0" + number;
-
-		return number;
-	}
-	
-	private static String printData(byte[] raw) {
-		return printData(raw, raw.length);
 	}
 }

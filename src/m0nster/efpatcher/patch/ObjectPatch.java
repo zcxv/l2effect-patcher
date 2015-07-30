@@ -1,5 +1,9 @@
 package m0nster.efpatcher.patch;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import acmi.l2.clientmod.io.UnrealPackageFile;
 import acmi.l2.clientmod.io.UnrealPackageFile.Entry;
 import acmi.l2.clientmod.io.UnrealPackageFile.ImportEntry;
@@ -18,7 +22,18 @@ public class ObjectPatch extends Patch {
 				.orElse(null);
 		
 		if(importEntry == null) {
-			throw new RuntimeException("Replaced effect not found");
+			out("Add new import entry...");
+			Map<String, String> imports = new HashMap<>();
+			imports.put("Core.Class", value);
+			try {
+				upf.addImportEntries(imports, false);
+			} catch(IOException e) {
+				e.printStackTrace();
+				throw new RuntimeException("Failed to add new import entry");
+			}
+			
+			patch(upf, property, value);
+			return;
 		}
 		
 		out(importEntry.getObjectInnerFullName());
