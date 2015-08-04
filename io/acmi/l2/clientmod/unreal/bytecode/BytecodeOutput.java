@@ -21,20 +21,31 @@
  */
 package acmi.l2.clientmod.unreal.bytecode;
 
-import acmi.l2.clientmod.io.DataOutput;
 import acmi.l2.clientmod.unreal.bytecode.token.EndFunctionParams;
 import acmi.l2.clientmod.unreal.bytecode.token.Token;
 
 import java.io.IOException;
 
-public interface BytecodeOutput extends DataOutput {
+public interface BytecodeOutput {
     int getNoneInd();
+
+    int getSize();
+
+    void writeByte(int val) throws IOException;
+
+    void writeShort(int val) throws IOException;
+
+    void writeInt(int val) throws IOException;
+
+    void writeCompactInt(int val) throws IOException;
+
+    void writeFloat(float val) throws IOException;
+
+    void writeLine(String s) throws IOException;
 
     default void writeToken(Token token) throws IOException {
         token.writeTo(this);
     }
-
-    int getSize();
 
     default void writeFunctionParams(Token[] params) throws IOException {
         for (Token token : params)

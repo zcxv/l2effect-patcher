@@ -26,6 +26,8 @@ import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class VirtualFunction extends Token {
     public static final int OPCODE = 0x1b;
@@ -33,7 +35,7 @@ public class VirtualFunction extends Token {
     private final int nameRef;
     private final Token[] params;
 
-    public VirtualFunction(int nameRef, Token[] params) {
+    public VirtualFunction(int nameRef, Token... params) {
         this.nameRef = nameRef;
         this.params = params;
     }
@@ -64,9 +66,9 @@ public class VirtualFunction extends Token {
 
     @Override
     public String toString() {
-        return "VirtualFunction{" +
-                "nameRef=" + nameRef +
-                ", params=" + Arrays.toString(params) +
-                '}';
+        return "VirtualFunction("
+                + nameRef
+                + (params == null || params.length == 0 ? "" : ", " + Arrays.stream(params).map(Objects::toString).collect(Collectors.joining(", ")))
+                + ')';
     }
 }

@@ -35,8 +35,8 @@ public class DefaultVariable extends Token {
 
     @Override
     public String toString() {
-        return "DefaultVariable{" +
-                "objRef=" + objRef +
-                '}';
+        return "DefaultVariable("
+                + objRef
+                + ')';
     }
 }

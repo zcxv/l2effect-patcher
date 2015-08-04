@@ -63,9 +63,9 @@ public class Metacast extends Token {
 
     @Override
     public String toString() {
-        return "Metacast{" +
-                "classRef=" + classRef +
-                ", value=" + value +
-                '}';
+        return "Metacast("
+                + classRef
+                + ", " + value
+                + ')';
     }
 }

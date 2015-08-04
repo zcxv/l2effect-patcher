@@ -70,10 +70,10 @@ public class StructCmpNe extends Token {
 
     @Override
     public String toString() {
-        return "StructCmpNe{" +
-                "structRef=" + structRef +
-                ", left=" + left +
-                ", right=" + right +
-                '}';
+        return "StructCmpNe("
+                + structRef
+                + ", " + left
+                + ", " + right
+                + ')';
     }
 }

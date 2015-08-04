@@ -56,8 +56,8 @@ public class IntConst extends Token {
 
     @Override
     public String toString() {
-        return "IntConst{" +
-                "value=" + value +
-                '}';
+        return "IntConst("
+                + value
+                + ')';
     }
 }

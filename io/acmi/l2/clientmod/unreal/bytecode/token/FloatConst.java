@@ -56,8 +56,8 @@ public class FloatConst extends Token {
 
     @Override
     public String toString() {
-        return "FloatConst{" +
-                "value=" + value +
-                '}';
+        return "FloatConst("
+                + value
+                + ')';
     }
 }

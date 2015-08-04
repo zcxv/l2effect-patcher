@@ -63,9 +63,9 @@ public class JumpIfNot extends Token {
 
     @Override
     public String toString() {
-        return "JumpIfNot{" +
-                "targetOffset=" + targetOffset +
-                ", condition=" + condition +
-                '}';
+        return "JumpIfNot("
+                + String.format("0x%02x", targetOffset)
+                + ", " + condition
+                + ')';
     }
 }

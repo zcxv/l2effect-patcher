@@ -70,10 +70,10 @@ public class StructCmpEq extends Token {
 
     @Override
     public String toString() {
-        return "StructCmpEq{" +
-                "structRef=" + structRef +
-                ", left=" + left +
-                ", right=" + right +
-                '}';
+        return "StructCmpEq("
+                + structRef
+                + ", " + left
+                + ", " + right
+                + ')';
     }
 }

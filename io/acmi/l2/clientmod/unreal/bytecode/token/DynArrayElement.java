@@ -63,9 +63,9 @@ public class DynArrayElement extends Token {
 
     @Override
     public String toString() {
-        return "DynArrayElement{" +
-                "index=" + index +
-                ", array=" + array +
-                '}';
+        return "DynArrayElement("
+                + index
+                + ", " + array
+                + ')';
     }
 }

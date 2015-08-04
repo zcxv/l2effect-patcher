@@ -56,8 +56,8 @@ public class NameConst extends Token {
 
     @Override
     public String toString() {
-        return "NameConst{" +
-                "nameRef=" + nameRef +
-                '}';
+        return "NameConst("
+                + nameRef
+                + ')';
     }
 }

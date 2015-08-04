@@ -19,44 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package acmi.l2.clientmod.unreal.engine;
+package acmi.l2.clientmod.unreal.bytecode.token;
 
-import acmi.l2.clientmod.io.DataInput;
-import acmi.l2.clientmod.io.DataOutput;
-import acmi.l2.clientmod.io.UnrealPackageReadOnly;
-import acmi.l2.clientmod.unreal.classloader.PropertiesUtil;
+import acmi.l2.clientmod.unreal.bytecode.BytecodeInput;
+import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
+import acmi.l2.clientmod.unreal.bytecode.token.annotation.ConversionToken;
 
 import java.io.IOException;
 
-public class GFxFlash extends acmi.l2.clientmod.unreal.core.Object {
-    private Type type;
-    private byte[] data;
+@ConversionToken
+public class INT64ToBool extends Token {
+    public static final int OPCODE = 0x61;
 
-    public GFxFlash(DataInput input, UnrealPackageReadOnly.ExportEntry entry, PropertiesUtil propertiesUtil) throws IOException {
-        super(input, entry, propertiesUtil);
+    private final Token value;
 
-        type = Type.valueOf(entry.getUnrealPackage().nameReference(input.readCompactInt()).toUpperCase());
-        data = input.readByteArray();
+    public INT64ToBool(Token value) {
+        this.value = value;
+    }
+
+    public static INT64ToBool readFrom(BytecodeInput input) throws IOException {
+        return new INT64ToBool(input.readToken());
     }
 
     @Override
-    public void writeTo(DataOutput output, PropertiesUtil propertiesUtil) throws IOException {
-        super.writeTo(output, propertiesUtil);
-
-        output.writeCompactInt(getEntry().getUnrealPackage().nameReference(type.name().toLowerCase()));
-        output.writeByteArray(data);
+    protected int getOpcode() {
+        return OPCODE;
     }
 
-    public Type getType() {
-        return type;
+    public Token getValue() {
+        return value;
     }
 
-    public byte[] getData() {
-        return data;
+    @Override
+    public void writeTo(BytecodeOutput output) throws IOException {
+        super.writeTo(output);
+        output.writeToken(value);
     }
 
-    public enum Type {
-        GFX,
-        TGA
+    @Override
+    public String toString() {
+        return "INT64ToBool("
+                + value
+                + ')';
     }
 }

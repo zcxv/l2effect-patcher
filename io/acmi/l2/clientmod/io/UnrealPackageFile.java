@@ -412,7 +412,7 @@ public class UnrealPackageFile implements UnrealPackageReadOnly, Closeable {
             }
         });
     }
-    
+
     public void reload() throws IOException {
         readNameTable();
         readImportTable();

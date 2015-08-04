@@ -56,8 +56,8 @@ public class ObjectConst extends Token {
 
     @Override
     public String toString() {
-        return "ObjectConst{" +
-                "objRef=" + objRef +
-                '}';
+        return "ObjectConst("
+                + objRef
+                + ')';
     }
 }

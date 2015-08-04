@@ -56,8 +56,8 @@ public class Skip extends Token {
 
     @Override
     public String toString() {
-        return "Skip{" +
-                "targetOffset=" + targetOffset +
-                '}';
+        return "Skip("
+                + targetOffset
+                + ')';
     }
 }

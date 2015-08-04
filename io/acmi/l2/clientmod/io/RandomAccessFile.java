@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 acmi
+ * Copyright (c) 2014-2015 acmi
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,11 +58,10 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             cryptVer = Integer.parseInt(l2CryptHeader.substring(11));
             switch (cryptVer) {
                 case 111:
-                    xorKey = 0xACACACAC;
+                    xorKey = 0xAC;
                     break;
                 case 121:
-                    int xb = getCryptKey(f.getName());
-                    xorKey = xb | (xb << 8) | (xb << 16) | (xb << 24);
+                    xorKey = getCryptKey(f.getName());
                     break;
                 default:
                     throw new IOException("Crypt " + cryptVer + " is not supported.");

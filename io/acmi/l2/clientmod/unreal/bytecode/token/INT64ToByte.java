@@ -19,32 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package acmi.l2.clientmod.crypt.xor;
+package acmi.l2.clientmod.unreal.bytecode.token;
 
-import java.io.FilterInputStream;
+import acmi.l2.clientmod.unreal.bytecode.BytecodeInput;
+import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
+import acmi.l2.clientmod.unreal.bytecode.token.annotation.ConversionToken;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
 
-public final class L2Ver1x1InputStream extends FilterInputStream {
-    private int xorKey;
+@ConversionToken
+public class INT64ToByte extends Token {
+    public static final int OPCODE = 0x5f;
 
-    public L2Ver1x1InputStream(InputStream input, int xorKey) {
-        super(Objects.requireNonNull(input, "stream"));
-        this.xorKey = xorKey;
+    private final Token value;
+
+    public INT64ToByte(Token value) {
+        this.value = value;
+    }
+
+    public static INT64ToByte readFrom(BytecodeInput input) throws IOException {
+        return new INT64ToByte(input.readToken());
     }
 
     @Override
-    public int read() throws IOException {
-        int b = in.read();
-        return b < 0 ? b : b ^ xorKey;
+    protected int getOpcode() {
+        return OPCODE;
+    }
+
+    public Token getValue() {
+        return value;
     }
 
     @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        int r = in.read(b, off, len);
-        for (int i = 0; i < r; i++)
-            b[off + i] ^= xorKey;
-        return r;
+    public void writeTo(BytecodeOutput output) throws IOException {
+        super.writeTo(output);
+        output.writeToken(value);
+    }
+
+    @Override
+    public String toString() {
+        return "INT64ToByte("
+                + value
+                + ')';
     }
 }

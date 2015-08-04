@@ -44,6 +44,6 @@ public class Self extends Token {
 
     @Override
     public String toString() {
-        return "Self";
+        return "Self()";
     }
 }

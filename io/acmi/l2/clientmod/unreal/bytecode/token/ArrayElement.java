@@ -63,9 +63,9 @@ public class ArrayElement extends Token {
 
     @Override
     public String toString() {
-        return "ArrayElement{" +
-                "index=" + index +
-                ", array=" + array +
-                '}';
+        return "ArrayElement("
+                + index
+                + "," + array
+                + ')';
     }
 }

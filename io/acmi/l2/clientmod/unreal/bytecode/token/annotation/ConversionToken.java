@@ -19,27 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package acmi.l2.clientmod.unreal.bytecode.totext;
+package acmi.l2.clientmod.unreal.bytecode.token.annotation;
 
-import acmi.l2.clientmod.unreal.UnrealException;
-import acmi.l2.clientmod.unreal.classloader.UnrealClassLoader;
-import acmi.l2.clientmod.unreal.core.Function;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.Collection;
-
-import static acmi.l2.clientmod.unreal.core.Function.Flag.*;
-
-public class NativeFunctionsFromClassLoader implements NativeFunctionsSupplier {
-    private UnrealClassLoader classLoader;
-
-    public NativeFunctionsFromClassLoader(UnrealClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
-    @Override
-    public NativeFunction apply(Integer integer) throws UnrealException {
-        Function function = classLoader.getNativeFunction(integer);
-        Collection<Function.Flag> flags = getFlags(function.functionFlags);
-        return new NativeFunction(integer, function.getFriendlyName(), flags.contains(PRE_OPERATOR), function.operatorPrecedence, flags.contains(OPERATOR));
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface ConversionToken {
 }

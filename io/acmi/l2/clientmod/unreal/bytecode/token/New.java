@@ -77,11 +77,11 @@ public class New extends Token {
 
     @Override
     public String toString() {
-        return "New{" +
-                "outer=" + outer +
-                ", name=" + name +
-                ", flags=" + flags +
-                ", clazz=" + clazz +
-                '}';
+        return "New("
+                + outer
+                + ", " + name
+                + ", " + flags
+                + ", " + clazz
+                + ')';
     }
 }

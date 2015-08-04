@@ -55,9 +55,9 @@ public class LetBool extends Token {
 
     @Override
     public String toString() {
-        return "LetBool{" +
-                "left=" + left +
-                ", right=" + right +
-                '}';
+        return "LetBool("
+                + left
+                + ", " + right
+                + ')';
     }
 }

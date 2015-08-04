@@ -63,9 +63,9 @@ public class StructMember extends Token {
 
     @Override
     public String toString() {
-        return "StructMember{" +
-                "objRef=" + objRef +
-                ", struct=" + struct +
-                '}';
+        return "StructMember("
+                + objRef
+                + ", " + struct
+                + ')';
     }
 }

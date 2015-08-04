@@ -62,13 +62,13 @@ public final class L2Property {
     public void putAt(int index, Object value) {
         this.value[index] = value;
     }
-    
+
     public Type getType() {
-    	return type;
+        return type;
     }
-    
+
     public void setType(Type type) {
-    	this.type = type;
+        this.type = type;
     }
 
     @Override

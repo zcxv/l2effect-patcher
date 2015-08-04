@@ -63,9 +63,9 @@ public class DynamicCast extends Token {
 
     @Override
     public String toString() {
-        return "DynamicCast{" +
-                "classRef=" + classRef +
-                ", value=" + value +
-                '}';
+        return "DynamicCast("
+                + classRef
+                + ", " + value
+                + ')';
     }
 }

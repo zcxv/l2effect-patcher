@@ -57,15 +57,15 @@ public class Iterator extends Token {
     @Override
     public void writeTo(BytecodeOutput output) throws IOException {
         super.writeTo(output);
-        output.writeShort(endOfLoopOffset);
         output.writeToken(expression);
+        output.writeShort(endOfLoopOffset);
     }
 
     @Override
     public String toString() {
-        return "Iterator{" +
-                "expression=" + expression +
-                ", endOfLoopOffset=" + endOfLoopOffset +
-                '}';
+        return "Iterator("
+                + expression
+                + ", " + endOfLoopOffset
+                + ')';
     }
 }

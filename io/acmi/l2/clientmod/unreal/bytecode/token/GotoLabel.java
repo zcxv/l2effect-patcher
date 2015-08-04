@@ -56,8 +56,8 @@ public class GotoLabel extends Token {
 
     @Override
     public String toString() {
-        return "GotoLabel{" +
-                "label=" + label +
-                '}';
+        return "GotoLabel("
+                + label
+                + ')';
     }
 }

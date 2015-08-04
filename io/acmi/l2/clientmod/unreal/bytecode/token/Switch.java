@@ -63,9 +63,9 @@ public class Switch extends Token {
 
     @Override
     public String toString() {
-        return "Switch{" +
-                "offset=" + offset +
-                ", expression=" + expression +
-                '}';
+        return "Switch("
+                + offset
+                + ", " + expression
+                + ')';
     }
 }

@@ -44,6 +44,6 @@ public class EndFunctionParams extends Token {
 
     @Override
     public String toString() {
-        return "EndFunctionParams";
+        return "EndFunctionParams()";
     }
 }

@@ -70,10 +70,10 @@ public class Remove extends Token {
 
     @Override
     public String toString() {
-        return "Remove{" +
-                "value=" + value +
-                ", index=" + index +
-                ", length=" + length +
-                '}';
+        return "Remove("
+                + value
+                + ", " + index
+                + ", " + length
+                + ')';
     }
 }

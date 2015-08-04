@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 acmi
+ * Copyright (c) 2015 acmi
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * Entry properties:
@@ -69,12 +68,8 @@ public class PropertiesUtil {
     public List<L2Property> readProperties(DataInput dataInput, String objClass, UnrealPackageReadOnly up) throws UnrealException {
         List<L2Property> properties = new ArrayList<>();
 
-        List<Property> classTemplate = unrealClassLoader.getStructFieldsQuetly(objClass)
-                .orElse(new ArrayList<>())
-                .stream()
-                .filter(field -> field instanceof Property)
-                .map(field -> (Property) field)
-                .collect(Collectors.toCollection(ArrayList::new));
+        List<Property> classTemplate = unrealClassLoader.getStructProperties(objClass);
+
         Collections.reverse(classTemplate);
 
         try {
@@ -154,10 +149,10 @@ public class PropertiesUtil {
                 throw new IllegalArgumentException();
         }
     }
-    
+
     private Object read(DataInput objBuffer, Type propertyType, boolean array, UnrealPackageReadOnly.ExportEntry arrayInner, String structName, UnrealPackageReadOnly up, String objClass, String pname) throws IOException {
-    	System.out.println("\t" + objClass + "->" + pname + " [" + propertyType.name() + "]");
-    	return read(objBuffer, propertyType, array, arrayInner, structName, up);
+        System.out.println("\t" + objClass + "->" + pname + " [" + propertyType.name() + "]");
+        return read(objBuffer, propertyType, array, arrayInner, structName, up);
     }
 
     private Object read(DataInput objBuffer, Type propertyType, boolean array, UnrealPackageReadOnly.ExportEntry arrayInner, String structName, UnrealPackageReadOnly up) throws IOException {
@@ -181,7 +176,7 @@ public class PropertiesUtil {
                 List<Object> arrayList = new ArrayList<>(arraySize);
 
                 String a = arrayInner.getObjectClass().getObjectName().getName();
-                Property f = (Property) unrealClassLoader.getOrLoadField(arrayInner);
+                Property f = unrealClassLoader.getProperty(arrayInner.getObjectFullName());
 
                 array = false;
                 arrayInner = null;
@@ -228,12 +223,7 @@ public class PropertiesUtil {
     }
 
     public List<L2Property> readStructBin(DataInput objBuffer, String structName, UnrealPackageReadOnly up) throws UnrealException {
-        List<Property> properties = unrealClassLoader.getStructFieldsQuetly(structName)
-                .orElseThrow(() -> new IllegalStateException(structName + " not found"))
-                .stream()
-                .filter(f -> f instanceof Property)
-                .map(f -> (Property) f)
-                .collect(Collectors.toList());
+        List<Property> properties = unrealClassLoader.getStructProperties(structName);
 
         try {
             switch (structName) {
@@ -313,13 +303,13 @@ public class PropertiesUtil {
 
                     int size = getPropertySize(bytes.length);
                     int ord = type.get().ordinal();
-                    if(ord == 8) //FIXME
-                    	ord = 5;
+                    if (ord == 8) //FIXME
+                        ord = 5;
                     int info = (array.get() ? 1 << 7 : 0) | (size << 4) | ord;
 
                     buffer.writeCompactInt(up.nameReference(template.getEntry().getObjectName().getName()));
                     buffer.writeByte(info);
-                    
+
                     if (type.get() == Type.STRUCT)
                         buffer.writeCompactInt(up.nameReference(structName.get()));
                     switch (size) {
@@ -343,61 +333,28 @@ public class PropertiesUtil {
             throw new UnrealException(e);
         }
     }
-    
-    public static String printData(byte[] data, int len) {
-		StringBuffer result = new StringBuffer();
-
-		int counter = 0;
-
-		for (int i = 0; i < len; i++) {
-			if (counter % 16 == 0)
-				result.append(fillHex(i, 4) + ": ");
-
-			result.append(fillHex(data[i] & 0xff, 2) + " ");
-			counter++;
-			if (counter == 16) {
-				result.append("\n");
-				counter = 0;
-			}
-		}
-
-		return result.toString();
-	}
-
-	public static String fillHex(int data, int digits) {
-		String number = Integer.toHexString(data);
-
-		for (int i = number.length(); i < digits; i++)
-			number = "0" + number;
-
-		return number;
-	}
-	
-	public static String printData(byte[] raw) {
-		return printData(raw, raw.length);
-	}
 
     private void write(DataOutput objBuffer, Property template, Object obj, AtomicBoolean array, AtomicReference<String> structName, AtomicReference<Type> type, UnrealPackageReadOnly up) throws IOException {
         if (template instanceof ByteProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [BYTE]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [BYTE]");
             objBuffer.writeByte((Integer) obj);
         } else if (template instanceof IntProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [INT]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [INT]");
             objBuffer.writeInt((Integer) obj);
         } else if (template instanceof BoolProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [BOOL]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [BOOL]");
             array.set((Boolean) obj);
         } else if (template instanceof FloatProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [FLOAT]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [FLOAT]");
             objBuffer.writeFloat((Float) obj);
         } else if (template instanceof ObjectProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [OBJ]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [OBJ]");
             objBuffer.writeCompactInt((Integer) obj);
         } else if (template instanceof NameProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [NAME]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [NAME]");
             objBuffer.writeCompactInt((Integer) obj);
         } else if (template instanceof ArrayProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [ARRAY]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [ARRAY]");
             ArrayProperty arrayProperty = (ArrayProperty) template;
 
             List<Object> arrayList = (List<Object>) obj;
@@ -417,7 +374,7 @@ public class PropertiesUtil {
                 throw new RuntimeException(e);
             }
         } else if (template instanceof StructProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [STRUCT]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [STRUCT]");
             StructProperty structProperty = (StructProperty) template;
             structName.set(structProperty.getStructType().getObjectName().getName());
             writeStruct(objBuffer, structName.get(), up, (List<L2Property>) obj);
@@ -432,7 +389,7 @@ public class PropertiesUtil {
 //                }
 //            }
         } else if (template instanceof StrProperty) {
-        	System.out.println(template.getEntry().getObjectInnerFullName() + " [STR]");
+            System.out.println(template.getEntry().getObjectInnerFullName() + " [STR]");
             objBuffer.writeLine((String) obj);
         } else {
             throw new UnsupportedOperationException(template.getClass().getSimpleName() + " serialization not implemented");

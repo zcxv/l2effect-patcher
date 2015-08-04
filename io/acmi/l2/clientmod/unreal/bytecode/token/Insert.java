@@ -23,22 +23,24 @@ package acmi.l2.clientmod.unreal.bytecode.token;
 
 import acmi.l2.clientmod.unreal.bytecode.BytecodeInput;
 import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
-import acmi.l2.clientmod.unreal.bytecode.token.annotation.ConversionToken;
 
 import java.io.IOException;
 
-@ConversionToken
-public class VectorToRotator extends Token {
-    public static final int OPCODE = 0x50;
+public class Insert extends Token {
+    public static final int OPCODE = 0x40;
 
     private final Token value;
+    private final Token index;
+    private final Token length;
 
-    public VectorToRotator(Token value) {
+    public Insert(Token value, Token index, Token length) {
         this.value = value;
+        this.index = index;
+        this.length = length;
     }
 
-    public static VectorToRotator readFrom(BytecodeInput input) throws IOException {
-        return new VectorToRotator(input.readToken());
+    public static Insert readFrom(BytecodeInput input) throws IOException {
+        return new Insert(input.readToken(), input.readToken(), input.readToken());
     }
 
     @Override
@@ -50,16 +52,28 @@ public class VectorToRotator extends Token {
         return value;
     }
 
+    public Token getIndex() {
+        return index;
+    }
+
+    public Token getLength() {
+        return length;
+    }
+
     @Override
     public void writeTo(BytecodeOutput output) throws IOException {
         super.writeTo(output);
         output.writeToken(value);
+        output.writeToken(index);
+        output.writeToken(length);
     }
 
     @Override
     public String toString() {
-        return "VectorToRotator("
+        return "Insert("
                 + value
+                + ", " + index
+                + ", " + length
                 + ')';
     }
 }

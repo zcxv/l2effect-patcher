@@ -56,8 +56,8 @@ public class ConversionTable extends Token {
 
     @Override
     public String toString() {
-        return "OldOpcode{" +
-                "inner=" + inner +
-                '}';
+        return "ConversionTable("
+                + inner
+                + ')';
     }
 }
