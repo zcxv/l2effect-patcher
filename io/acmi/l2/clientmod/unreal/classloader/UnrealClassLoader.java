@@ -180,12 +180,4 @@ public class UnrealClassLoader {
             throw new UnrealException(e);
         }
     }
-
-    public static void main(String[] args) throws Exception {
-        UnrealClassLoader classLoader = new UnrealClassLoader(new FolderPackageLoader("D:\\Систематизированная\\Я\\Сазонов\\java\\IdeaProjects\\l2effect-patcher\\import"));
-        //classLoader.getStructFields("Fire.FireTexture");
-
-        System.out.println(classLoader.getStruct("Engine.ActionWarp"));
-        System.out.println(classLoader.getStruct("Engine.ActionPause"));
-    }
 }
