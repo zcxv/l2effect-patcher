@@ -26,9 +26,7 @@ import acmi.l2.clientmod.io.DataInputStream;
 import acmi.l2.clientmod.io.UnrealPackageReadOnly;
 import acmi.l2.clientmod.unreal.UnrealException;
 import acmi.l2.clientmod.unreal.core.Class;
-import acmi.l2.clientmod.unreal.core.Field;
-import acmi.l2.clientmod.unreal.core.Property;
-import acmi.l2.clientmod.unreal.core.Struct;
+import acmi.l2.clientmod.unreal.core.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -53,14 +51,16 @@ public class UnrealClassLoader {
         return propertiesUtil;
     }
 
-    private UnrealPackageReadOnly.ExportEntry getExportEntry(String name, Predicate<UnrealPackageReadOnly.ExportEntry> condition) throws UnrealException {
+    private Optional<? extends UnrealPackageReadOnly.ExportEntry> getExportEntry(String name, Predicate<UnrealPackageReadOnly.ExportEntry> condition) throws UnrealException {
+        if (name == null)
+            return Optional.empty();
+
         String[] path = name.split("\\.", 2);
         return packageLoader.apply(path[0])
                 .getExportTable()
                 .stream()
                 .filter(e -> e.getObjectFullName().equalsIgnoreCase(name) && condition.test(e))
-                .findAny()
-                .orElseThrow(() -> new UnrealException(String.format("Entry %s not found.", name)));
+                .findAny();
     }
 
     public Struct getStruct(String struct) {
@@ -74,10 +74,12 @@ public class UnrealClassLoader {
     private List<Property> loadStructProperties(String structName) {
         if (!structPropertiesCache.containsKey(structName)) {
             List<Property> fields = new ArrayList<>();
-            Struct struct = (Struct) loadField(getExportEntry(structName, e -> true));
+            Struct struct = (Struct) loadField(getExportEntry(structName, e -> true)
+                    .orElseThrow(() -> new UnrealException(String.format("Struct %s not found.", structName))));
             UnrealPackageReadOnly.Entry childEntry = struct.getChild();
             while (childEntry != null) {
-                UnrealPackageReadOnly.ExportEntry pEntry = getExportEntry(childEntry.getObjectFullName(), e -> true);
+                UnrealPackageReadOnly.ExportEntry pEntry = getExportEntry(childEntry.getObjectFullName(), e -> true)
+                        .orElseThrow(() -> new UnrealException(String.format("Child entry %s not found.", structName)));
 
                 Field field = loadField(pEntry);
 
@@ -117,7 +119,8 @@ public class UnrealClassLoader {
 
     public Property getProperty(String property) {
         if (!propertyCache.containsKey(property)) {
-            propertyCache.put(property, (Property) loadField(getExportEntry(property, e -> true)));
+            propertyCache.put(property, (Property) loadField(getExportEntry(property, e -> true)
+                    .orElseThrow(() -> new UnrealException(String.format("Property %s not found.", property)))));
         }
         return propertyCache.get(property);
     }
@@ -151,12 +154,13 @@ public class UnrealClassLoader {
                     "Core.State".equals(clazz);
 
         };
-        UnrealPackageReadOnly.ExportEntry entry = getExportEntry(name, condition);
-        tree.add(entry);
 
-        while (entry.getObjectSuperClass() != null) {
-            entry = getExportEntry(entry.getObjectSuperClass().getObjectFullName(), condition);
+        Optional<? extends UnrealPackageReadOnly.ExportEntry> eOptional;
+        while((eOptional=getExportEntry(name, condition)).isPresent()){
+            UnrealPackageReadOnly.ExportEntry entry = eOptional.get();
             tree.add(entry);
+            name = entry.getObjectSuperClass() != null ?
+                    entry.getObjectSuperClass().getObjectFullName() : null;
         }
 
         Collections.reverse(tree);
