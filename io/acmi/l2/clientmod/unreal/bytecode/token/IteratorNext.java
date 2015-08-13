@@ -44,6 +44,6 @@ public class IteratorNext extends Token {
 
     @Override
     public String toString() {
-        return "IteratorNext";
+        return "IteratorNext()";
     }
 }

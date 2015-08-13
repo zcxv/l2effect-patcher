@@ -56,8 +56,8 @@ public class StringConst extends Token {
 
     @Override
     public String toString() {
-        return "StringConst{" +
-                "value='" + value + '\'' +
-                '}';
+        return "StringConst("
+                + (value == null ? "null" : "\"" + value + "\"")
+                + ')';
     }
 }

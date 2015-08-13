@@ -23,6 +23,6 @@ public class Stop extends Token {
 
     @Override
     public String toString() {
-        return "Stop";
+        return "Stop()";
     }
 }

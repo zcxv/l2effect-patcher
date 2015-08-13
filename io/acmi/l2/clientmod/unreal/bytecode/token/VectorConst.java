@@ -68,10 +68,10 @@ public class VectorConst extends Token {
 
     @Override
     public String toString() {
-        return "VectorConst{" +
-                "x=" + x +
-                ", y=" + y +
-                ", z=" + z +
-                '}';
+        return "VectorConst("
+                + x
+                + ", " + y
+                + ", " + z
+                + ')';
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 acmi
+ * Copyright (c) 2014-2015 acmi
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -62,13 +62,13 @@ public interface UnrealPackageReadOnly {
             return null;
     }
 
-    public interface NameEntry {
+    interface NameEntry {
         String getName();
 
         int getFlags();
     }
 
-    public interface Entry {
+    interface Entry {
         UnrealPackageReadOnly getUnrealPackage();
 
         int getObjectReference();
@@ -84,7 +84,7 @@ public interface UnrealPackageReadOnly {
         String getObjectInnerFullName();
     }
 
-    public interface ImportEntry extends Entry {
+    interface ImportEntry extends Entry {
         UnrealPackageReadOnly getUnrealPackage();
 
         NameEntry getClassPackage();
@@ -92,7 +92,7 @@ public interface UnrealPackageReadOnly {
         NameEntry getClassName();
     }
 
-    public interface ExportEntry extends Entry {
+    interface ExportEntry extends Entry {
         Entry getObjectClass();
 
         Entry getObjectSuperClass();
@@ -106,7 +106,7 @@ public interface UnrealPackageReadOnly {
         byte[] getObjectRawDataExternally() throws IOException;
     }
 
-    public enum ObjectFlag {
+    enum ObjectFlag {
         /**
          * Object is transactional.
          */
@@ -259,13 +259,13 @@ public interface UnrealPackageReadOnly {
         }
     }
 
-    public static final int PACKAGE_FLAGS = ObjectFlag.getFlags(
+    int PACKAGE_FLAGS = ObjectFlag.getFlags(
             ObjectFlag.Public,
             ObjectFlag.LoadForClient,
             ObjectFlag.LoadForServer,
             ObjectFlag.LoadForEdit);
 
-    public enum PackageFlag {
+    enum PackageFlag {
         /**
          * Allow downloading package
          */

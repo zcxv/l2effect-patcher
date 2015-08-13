@@ -63,9 +63,9 @@ public class Assert extends Token {
 
     @Override
     public String toString() {
-        return "Assert{" +
-                "lineNumber=" + lineNumber +
-                ", expression=" + expression +
-                '}';
+        return "Assert("
+                + lineNumber
+                + "," + expression
+                + ')';
     }
 }

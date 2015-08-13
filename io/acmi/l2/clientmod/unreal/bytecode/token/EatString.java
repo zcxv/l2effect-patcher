@@ -56,8 +56,8 @@ public class EatString extends Token {
 
     @Override
     public String toString() {
-        return "EatString{" +
-                "value=" + value +
-                '}';
+        return "EatString("
+                + value
+                + ')';
     }
 }

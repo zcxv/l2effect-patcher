@@ -23,9 +23,11 @@ package acmi.l2.clientmod.unreal.bytecode.token;
 
 import acmi.l2.clientmod.unreal.bytecode.BytecodeInput;
 import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
+import acmi.l2.clientmod.unreal.bytecode.token.annotation.ConversionToken;
 
 import java.io.IOException;
 
+@ConversionToken
 public class INT64ToFloat extends Token {
     public static final int OPCODE = 0x62;
 
@@ -56,8 +58,8 @@ public class INT64ToFloat extends Token {
 
     @Override
     public String toString() {
-        return "INT64ToFloat{" +
-                "value=" + value +
-                '}';
+        return "INT64ToFloat("
+                + value
+                + ')';
     }
 }

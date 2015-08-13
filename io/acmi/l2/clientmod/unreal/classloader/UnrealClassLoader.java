@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 acmi
+ * Copyright (c) 2015 acmi
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,20 +30,17 @@ import acmi.l2.clientmod.unreal.core.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Predicate;
 
 public class UnrealClassLoader {
-    //private static final Logger log = Logger.getLogger(UnrealClassLoader.class.getName());
-
     private final PackageLoader packageLoader;
     private final PropertiesUtil propertiesUtil;
 
-    private final Map<String, Struct> structCache = new HashMap<>();
-    private final Map<String, List<Field>> structFieldsCache = new HashMap<>();
-    private final Map<String, Field> fieldsCache = new HashMap<>();
-
-    private final Map<Integer, Function> nativeFunctions = new HashMap<>();
+    private Map<String, Struct> structCache = new HashMap<>();
+    private Map<String, Property> propertyCache = new HashMap<>();
+    private Map<String, List<Property>> structPropertiesCache = new HashMap<>();
 
     public UnrealClassLoader(PackageLoader packageLoader) {
         this.packageLoader = packageLoader;
@@ -54,156 +51,86 @@ public class UnrealClassLoader {
         return propertiesUtil;
     }
 
-    private UnrealPackageReadOnly.ExportEntry getExportEntry(String name, Predicate<UnrealPackageReadOnly.ExportEntry> condition) throws UnrealException {
+    private Optional<? extends UnrealPackageReadOnly.ExportEntry> getExportEntry(String name, Predicate<UnrealPackageReadOnly.ExportEntry> condition) throws UnrealException {
+        if (name == null)
+            return Optional.empty();
+
         String[] path = name.split("\\.", 2);
         return packageLoader.apply(path[0])
                 .getExportTable()
                 .stream()
                 .filter(e -> e.getObjectFullName().equalsIgnoreCase(name) && condition.test(e))
-                .findAny()
-                .orElseThrow(() -> new UnrealException(String.format("Entry %s not found.", name)));
+                .findAny();
     }
 
-    public Struct getStruct(String structName) throws UnrealException {
-        if (!structCache.containsKey(structName))
-            loadStructTree(structName);
-
-        return structCache.get(structName);
-    }
-
-    private Optional<Struct> getStructQuetly(String structName) {
-        try {
-            return Optional.of(getStruct(structName));
-        } catch (UnrealException e) {
-            return Optional.ofNullable(null);
+    public Struct getStruct(String struct) {
+        if (!structCache.containsKey(struct)) {
+            getStructProperties(struct);
         }
+
+        return structCache.get(struct);
     }
 
-    public List<Field> getStructFields(String structName) throws UnrealException {
-        if (!structFieldsCache.containsKey(structName))
-            loadStructTree(structName);
+    private List<Property> loadStructProperties(String structName) {
+        if (!structPropertiesCache.containsKey(structName)) {
+            List<Property> fields = new ArrayList<>();
+            Struct struct = (Struct) loadField(getExportEntry(structName, e -> true)
+                    .orElseThrow(() -> new UnrealException(String.format("Struct %s not found.", structName))));
+            UnrealPackageReadOnly.Entry childEntry = struct.getChild();
+            while (childEntry != null) {
+                UnrealPackageReadOnly.ExportEntry pEntry = getExportEntry(childEntry.getObjectFullName(), e -> true)
+                        .orElseThrow(() -> new UnrealException(String.format("Child entry %s not found.", structName)));
 
-        return structFieldsCache.get(structName);
-    }
+                Field field = loadField(pEntry);
 
-    public Optional<List<Field>> getStructFieldsQuetly(String structName) {
-        try {
-            return Optional.of(getStructFields(structName));
-        } catch (UnrealException e) {
-            return Optional.ofNullable(null);
-        }
-    }
-
-    private Struct getOrLoadStruct(String structName) throws IOException {
-        return structCache.containsKey(structName) ?
-                structCache.get(structName) :
-                loadStruct(structName);
-    }
-
-    private void loadStructTree(String structName) throws UnrealException {
-        try {
-            List<Struct> list = new ArrayList<>();
-
-            Struct tmp = getOrLoadStruct(structName);
-            while (tmp != null) {
-                list.add(tmp);
-
-                UnrealPackageReadOnly.Entry superStruct = tmp.getEntry().getObjectSuperClass();
-                tmp = superStruct != null ? getOrLoadStruct(superStruct.getObjectFullName()) : null;
-            }
-
-            Collections.reverse(list);
-
-            System.out.println(String.format("%s", list));
-            //log.info(() -> String.format("%s", list));
-
-            List<Field> fields = new ArrayList<>();
-            for (Struct struct : list) {
-                String name = struct.getEntry().getObjectFullName();
-
-                if (!structFieldsCache.containsKey(name)) {
-                    UnrealPackageReadOnly.Entry childEntry = struct.getChild();
-                    while (childEntry != null) {
-                        Field field = getOrLoadField(childEntry);
-
-                        fields.add(field);
-
-                        childEntry = field.getNext();
-                    }
-
-                    structFieldsCache.put(name, Collections.unmodifiableList(new ArrayList<>(fields)));
+                if (field instanceof Property) {
+                    Property p = (Property) field;
+                    propertyCache.putIfAbsent(pEntry.getObjectFullName(), p);
+                    fields.add(p);
                 }
 
-                fields = new ArrayList<>(structFieldsCache.get(name));
+                childEntry = field.getNext();
+            }
+            structPropertiesCache.put(structName, fields);
 
-                if (!structCache.containsKey(name)) {
-                    if (struct instanceof Class)
+            if (!structCache.containsKey(structName)) {
+                if (struct instanceof Class)
+                    try {
                         ((Class) struct).readProperties();
-
-                    structCache.put(name, struct);
-                }
-            }
-        } catch (IOException e) {
-            throw new UnrealException(e);
-        }
-    }
-
-    private Struct loadStruct(String name) throws IOException {
-        UnrealPackageReadOnly.ExportEntry entry = getExportEntry(name, e -> {
-            if (e.getObjectClass() == null)
-                return true;
-            String clazz = e.getObjectClass().getObjectFullName();
-            return "Core.Function".equals(clazz) ||
-                    "Core.Struct".equals(clazz) ||
-                    "Core.State".equals(clazz);
-
-        });
-        DataInput buffer = new DataInputStream(new ByteArrayInputStream(entry.getObjectRawDataExternally()), entry.getOffset(), entry.getUnrealPackage().getCharset());
-        Struct struct;
-        switch (entry.getObjectClass() != null ? entry.getObjectClass().getObjectFullName() : "null") {
-            case "Core.Function":
-                Function function = new Function(buffer, entry, propertiesUtil);
-                if (Function.Flag.getFlags(function.functionFlags).contains(Function.Flag.NATIVE))
-                    nativeFunctions.put(function.nativeIndex, function);
-                struct = function;
-                break;
-            case "Core.Struct":
-                struct = new Struct(buffer, entry, propertiesUtil);
-                break;
-            case "Core.State":
-                struct = new State(buffer, entry, propertiesUtil);
-                break;
-            default:
-                struct = new Class(buffer, entry, propertiesUtil);
-                break;
-        }
-        return struct;
-    }
-
-    private Field loadField(UnrealPackageReadOnly.ExportEntry entry) throws IOException, ReflectiveOperationException {
-        DataInput buffer = new DataInputStream(new ByteArrayInputStream(entry.getObjectRawDataExternally()), entry.getUnrealPackage().getCharset());
-
-        String fieldClassName = Field.class.getPackage().getName() + "." + entry.getObjectClass().getObjectName().getName();
-        java.lang.Class<? extends Field> fieldClass = java.lang.Class.forName(fieldClassName).asSubclass(Field.class);
-
-        return fieldClass.getConstructor(DataInput.class, UnrealPackageReadOnly.ExportEntry.class, PropertiesUtil.class)
-                .newInstance(buffer, entry, propertiesUtil);
-    }
-
-    Field getOrLoadField(UnrealPackageReadOnly.Entry entry) throws UnrealException {
-        String name = entry.getObjectFullName();
-        if (!fieldsCache.containsKey(name)) {
-            try {
-                fieldsCache.put(name, loadField((UnrealPackageReadOnly.ExportEntry) entry));
-            } catch (IOException | ReflectiveOperationException e) {
-                throw new UnrealException(e);
+                    } catch (IOException e) {
+                        throw new UnrealException(e);
+                    }
+                structCache.put(structName, struct);
             }
         }
-        return fieldsCache.get(name);
+
+        return structPropertiesCache.get(structName);
     }
 
-    public Function getNativeFunction(int index) throws UnrealException {
-        return nativeFunctions.get(index);
+    public List<Property> getStructProperties(String structName) {
+        return getClassTree(structName).stream()
+                .map(UnrealPackageReadOnly.Entry::getObjectFullName)
+                .map(this::loadStructProperties)
+                .reduce(new ArrayList<>(), (l1, l2) -> {
+                    l1.addAll(l2);
+                    return l1;
+                });
+    }
+
+    public Property getProperty(String property) {
+        if (!propertyCache.containsKey(property)) {
+            propertyCache.put(property, (Property) loadField(getExportEntry(property, e -> true)
+                    .orElseThrow(() -> new UnrealException(String.format("Property %s not found.", property)))));
+        }
+        return propertyCache.get(property);
+    }
+
+    public String getSuperClass(String clazz) {
+        try {
+            return getStruct(clazz).getEntry().getObjectSuperClass().getObjectFullName();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean isSubclass(String parent, String child) {
@@ -215,11 +142,46 @@ public class UnrealClassLoader {
         return child != null && isSubclass(parent, child);
     }
 
-    public String getSuperClass(String clazz) {
-        Optional<Struct> childClass = getStructQuetly(clazz);
-        if (childClass.isPresent()) {
-            return childClass.get().getEntry().getObjectSuperClass().getObjectFullName();
+    public List<UnrealPackageReadOnly.ExportEntry> getClassTree(String name) {
+        List<UnrealPackageReadOnly.ExportEntry> tree = new ArrayList<>();
+
+        Predicate<UnrealPackageReadOnly.ExportEntry> condition = e -> {
+            if (e.getObjectClass() == null)
+                return true;
+            String clazz = e.getObjectClass().getObjectFullName();
+            return "Core.Function".equals(clazz) ||
+                    "Core.Struct".equals(clazz) ||
+                    "Core.State".equals(clazz);
+
+        };
+
+        Optional<? extends UnrealPackageReadOnly.ExportEntry> eOptional;
+        while((eOptional=getExportEntry(name, condition)).isPresent()){
+            UnrealPackageReadOnly.ExportEntry entry = eOptional.get();
+            tree.add(entry);
+            name = entry.getObjectSuperClass() != null ?
+                    entry.getObjectSuperClass().getObjectFullName() : null;
         }
-        return null;
+
+        Collections.reverse(tree);
+
+        return tree;
+    }
+
+    public Field loadField(UnrealPackageReadOnly.ExportEntry entry) {
+        try {
+            DataInput buffer = new DataInputStream(new ByteArrayInputStream(entry.getObjectRawDataExternally()), entry.getUnrealPackage().getCharset());
+
+            String fieldClassName = Field.class.getPackage().getName() + "." +
+                    (entry.getObjectClass() == null ? "Class" : entry.getObjectClass().getObjectName().getName());
+            java.lang.Class<? extends Field> fieldClass = java.lang.Class.forName(fieldClassName).asSubclass(Field.class);
+
+            return fieldClass.getConstructor(DataInput.class, UnrealPackageReadOnly.ExportEntry.class, PropertiesUtil.class)
+                    .newInstance(buffer, entry, getPropertiesUtil());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (ReflectiveOperationException e) {
+            throw new UnrealException(e);
+        }
     }
 }

@@ -23,9 +23,11 @@ package acmi.l2.clientmod.unreal.bytecode.token;
 
 import acmi.l2.clientmod.unreal.bytecode.BytecodeInput;
 import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
+import acmi.l2.clientmod.unreal.bytecode.token.annotation.ConversionToken;
 
 import java.io.IOException;
 
+@ConversionToken
 public class BoolToInt extends Token {
     public static final int OPCODE = 0x41;
 
@@ -56,8 +58,8 @@ public class BoolToInt extends Token {
 
     @Override
     public String toString() {
-        return "BoolToInt{" +
-                "value=" + value +
-                '}';
+        return "BoolToInt("
+                + value
+                + ')';
     }
 }

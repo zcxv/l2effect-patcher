@@ -35,8 +35,8 @@ public class InstanceVariable extends Token {
 
     @Override
     public String toString() {
-        return "InstanceVariable{" +
-                "objRef=" + objRef +
-                '}';
+        return "InstanceVariable("
+                + objRef
+                + ')';
     }
 }

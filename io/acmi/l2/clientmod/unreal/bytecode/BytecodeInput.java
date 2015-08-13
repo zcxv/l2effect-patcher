@@ -21,7 +21,6 @@
  */
 package acmi.l2.clientmod.unreal.bytecode;
 
-import acmi.l2.clientmod.io.DataInput;
 import acmi.l2.clientmod.unreal.bytecode.token.EndFunctionParams;
 import acmi.l2.clientmod.unreal.bytecode.token.Token;
 
@@ -29,12 +28,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface BytecodeInput extends DataInput {
+public interface BytecodeInput {
     int getNoneInd();
 
-    Token readToken() throws IOException;
-
     int getSize();
+
+    int readUnsignedByte() throws IOException;
+
+    int readUnsignedShort() throws IOException;
+
+    int readInt() throws IOException;
+
+    int readCompactInt() throws IOException;
+
+    float readFloat() throws IOException;
+
+    String readLine() throws IOException;
+
+    Token readToken() throws IOException;
 
     default Token[] readFunctionParams() throws IOException {
         List<Token> tokens = new ArrayList<>();

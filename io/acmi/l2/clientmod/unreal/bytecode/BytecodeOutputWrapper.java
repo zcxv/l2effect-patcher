@@ -24,7 +24,6 @@ package acmi.l2.clientmod.unreal.bytecode;
 import acmi.l2.clientmod.io.DataOutput;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 class BytecodeOutputWrapper implements BytecodeOutput {
     private DataOutput output;
@@ -43,31 +42,6 @@ class BytecodeOutputWrapper implements BytecodeOutput {
     @Override
     public int getNoneInd() {
         return noneInd;
-    }
-
-    @Override
-    public void write(int b) throws IOException {
-        output.write(b);
-    }
-
-    @Override
-    public void write(byte[] b) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void write(byte[] b, int off, int len) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Charset getCharset() {
-        return output.getCharset();
-    }
-
-    @Override
-    public int getPosition() throws IOException {
-        return output.getPosition();
     }
 
     @Override
@@ -95,11 +69,6 @@ class BytecodeOutputWrapper implements BytecodeOutput {
     }
 
     @Override
-    public void writeLong(long val) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void writeFloat(float val) throws IOException {
         output.writeFloat(val);
         size += 4;
@@ -107,28 +76,8 @@ class BytecodeOutputWrapper implements BytecodeOutput {
 
     @Override
     public void writeLine(String s) throws IOException {
-        byte[] bytes = (s + '\0').getBytes(getCharset());
-        write(bytes);
+        byte[] bytes = (s + '\0').getBytes(output.getCharset());
+        output.write(bytes);
         size += bytes.length;
-    }
-
-    @Override
-    public void writeBytes(String s) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void writeChars(String s) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void writeUTF(String s) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void writeByteArray(byte[] array) throws IOException {
-        throw new UnsupportedOperationException();
     }
 }

@@ -56,8 +56,8 @@ public class DelegateName extends Token {
 
     @Override
     public String toString() {
-        return "DelegateName{" +
-                "nameRef=" + nameRef +
-                '}';
+        return "DelegateName("
+                + nameRef
+                + ')';
     }
 }

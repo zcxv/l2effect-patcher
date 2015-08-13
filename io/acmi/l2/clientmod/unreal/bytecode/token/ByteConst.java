@@ -56,8 +56,8 @@ public class ByteConst extends Token {
 
     @Override
     public String toString() {
-        return "ByteConst{" +
-                "value=" + value +
-                '}';
+        return "ByteConst("
+                + value
+                + ')';
     }
 }

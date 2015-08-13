@@ -44,6 +44,6 @@ public class IntZero extends Token {
 
     @Override
     public String toString() {
-        return "IntZero";
+        return "IntZero()";
     }
 }

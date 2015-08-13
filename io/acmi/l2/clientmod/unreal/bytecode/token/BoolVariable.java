@@ -56,8 +56,8 @@ public class BoolVariable extends Token {
 
     @Override
     public String toString() {
-        return "BoolVariable{" +
-                "value=" + value +
-                '}';
+        return "BoolVariable("
+                + value
+                + ')';
     }
 }

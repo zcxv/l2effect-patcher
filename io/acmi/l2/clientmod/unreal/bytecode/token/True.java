@@ -44,6 +44,6 @@ public class True extends Token {
 
     @Override
     public String toString() {
-        return "True";
+        return "True()";
     }
 }

@@ -28,13 +28,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class LabelTable extends Token {
     public static final int OPCODE = 0x0c;
 
     private final Label[] labels;
 
-    public LabelTable(Label[] labels) {
+    public LabelTable(Label... labels) {
         this.labels = labels;
     }
 
@@ -62,17 +64,18 @@ public class LabelTable extends Token {
     @Override
     public void writeTo(BytecodeOutput output) throws IOException {
         super.writeTo(output);
-        for (Label label : labels) {
-            label.writeTo(output);
-        }
+        if (labels != null)
+            for (Label label : labels) {
+                label.writeTo(output);
+            }
         new Label(output.getNoneInd(), 0xffff).writeTo(output);
     }
 
     @Override
     public String toString() {
-        return "LabelTable{" +
-                "labels=" + Arrays.toString(labels) +
-                '}';
+        return "LabelTable("
+                + (labels == null || labels.length == 0 ? "" : ", " + Arrays.stream(labels).map(Objects::toString).collect(Collectors.joining(", ")))
+                + ')';
     }
 
     public static class Label {
@@ -104,10 +107,10 @@ public class LabelTable extends Token {
 
         @Override
         public String toString() {
-            return "Label{" +
-                    "nameRef=" + nameRef +
-                    ", offset=" + offset +
-                    '}';
+            return "Label("
+                    + nameRef
+                    + ", " + offset
+                    + ')';
         }
     }
 }

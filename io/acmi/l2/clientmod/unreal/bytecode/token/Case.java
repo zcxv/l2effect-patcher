@@ -31,12 +31,12 @@ public class Case extends Token {
 
     public static final int DEFAULT = 0xffff;
 
-    private final int index;
-    private final Token value;
+    private final int nextOffset;
+    private final Token condition;
 
-    public Case(int index, Token value) {
-        this.index = index;
-        this.value = value;
+    public Case(int nextOffset, Token condition) {
+        this.nextOffset = nextOffset;
+        this.condition = condition;
     }
 
     public static Case readFrom(BytecodeInput input) throws IOException {
@@ -49,27 +49,27 @@ public class Case extends Token {
         return OPCODE;
     }
 
-    public int getIndex() {
-        return index;
+    public int getNextOffset() {
+        return nextOffset;
     }
 
-    public Token getValue() {
-        return value;
+    public Token getCondition() {
+        return condition;
     }
 
     @Override
     public void writeTo(BytecodeOutput output) throws IOException {
         super.writeTo(output);
-        output.writeShort(index);
-        if (index != DEFAULT)
-            output.writeToken(value);
+        output.writeShort(nextOffset);
+        if (nextOffset != DEFAULT)
+            output.writeToken(condition);
     }
 
     @Override
     public String toString() {
-        return "Case{" +
-                "index=" + index +
-                ", value=" + value +
-                '}';
+        return "Case("
+                + nextOffset
+                + "," + condition
+                + ')';
     }
 }

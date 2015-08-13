@@ -19,26 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package acmi.l2.clientmod.crypt.xor;
+package acmi.l2.clientmod.unreal.bytecode.token;
 
-import acmi.l2.clientmod.io.FinishableOutputStream;
+import acmi.l2.clientmod.unreal.bytecode.BytecodeInput;
+import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
+import acmi.l2.clientmod.unreal.bytecode.token.annotation.ConversionToken;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Objects;
 
-import static acmi.l2.clientmod.crypt.xor.L2Ver120.START_IND;
-import static acmi.l2.clientmod.crypt.xor.L2Ver120.getXORKey;
+@ConversionToken
+public class ByteToINT64 extends Token {
+    public static final int OPCODE = 0x5a;
 
-public final class L2Ver120OutputStream extends FinishableOutputStream {
-    private int ind = START_IND;
+    private final Token value;
 
-    public L2Ver120OutputStream(OutputStream output) {
-        super(Objects.requireNonNull(output, "stream"));
+    public ByteToINT64(Token value) {
+        this.value = value;
+    }
+
+    public static ByteToINT64 readFrom(BytecodeInput input) throws IOException {
+        return new ByteToINT64(input.readToken());
     }
 
     @Override
-    public void write(int b) throws IOException {
-        out.write(b ^ getXORKey(ind++));
+    protected int getOpcode() {
+        return OPCODE;
+    }
+
+    public Token getValue() {
+        return value;
+    }
+
+    @Override
+    public void writeTo(BytecodeOutput output) throws IOException {
+        super.writeTo(output);
+        output.writeToken(value);
+    }
+
+    @Override
+    public String toString() {
+        return "ByteToINT64("
+                + value
+                + ')';
     }
 }

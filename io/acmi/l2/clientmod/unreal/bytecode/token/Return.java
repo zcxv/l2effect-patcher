@@ -35,8 +35,8 @@ public class Return extends Token {
 
     @Override
     public String toString() {
-        return "Return{" +
-                "value=" + value +
-                '}';
+        return "Return("
+                + value
+                + ')';
     }
 }

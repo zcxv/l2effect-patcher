@@ -56,8 +56,8 @@ public class NativeParam extends Token {
 
     @Override
     public String toString() {
-        return "NativeParam{" +
-                "objRef=" + objRef +
-                '}';
+        return "NativeParam("
+                + objRef
+                + ')';
     }
 }

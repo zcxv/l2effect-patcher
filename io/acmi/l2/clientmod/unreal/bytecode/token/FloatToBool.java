@@ -23,9 +23,11 @@ package acmi.l2.clientmod.unreal.bytecode.token;
 
 import acmi.l2.clientmod.unreal.bytecode.BytecodeInput;
 import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
+import acmi.l2.clientmod.unreal.bytecode.token.annotation.ConversionToken;
 
 import java.io.IOException;
 
+@ConversionToken
 public class FloatToBool extends Token {
     public static final int OPCODE = 0x45;
 
@@ -56,8 +58,8 @@ public class FloatToBool extends Token {
 
     @Override
     public String toString() {
-        return "FloatToBool{" +
-                "value=" + value +
-                '}';
+        return "FloatToBool("
+                + value
+                + ')';
     }
 }

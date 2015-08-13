@@ -48,7 +48,7 @@ public class Object {
         }
 
         if (!(this instanceof Class)) {
-        	System.out.println("Read " + entry.getObjectInnerFullName());
+            System.out.println("Read " + entry.getObjectInnerFullName());
             properties.addAll(propertiesUtil.readProperties(input, this.entry.getObjectClass().getObjectFullName(), this.entry.getUnrealPackage()));
         }
     }

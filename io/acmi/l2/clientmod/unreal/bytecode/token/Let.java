@@ -63,9 +63,9 @@ public class Let extends Token {
 
     @Override
     public String toString() {
-        return "Let{" +
-                "left=" + left +
-                ", right=" + right +
-                '}';
+        return "Let("
+                + left
+                + ", " + right
+                + ')';
     }
 }

@@ -27,7 +27,6 @@ import acmi.l2.clientmod.util.IOFunction;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 class BytecodeInputWrapper implements BytecodeInput {
     private DataInput input;
@@ -48,36 +47,6 @@ class BytecodeInputWrapper implements BytecodeInput {
     @Override
     public int getNoneInd() {
         return noneInd;
-    }
-
-    @Override
-    public Charset getCharset() {
-        return input.getCharset();
-    }
-
-    @Override
-    public int getPosition() throws IOException {
-        return input.getPosition();
-    }
-
-    @Override
-    public int read() throws IOException {
-        return input.read();
-    }
-
-    @Override
-    public void readFully(byte[] b) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void readFully(byte[] b, int off, int len) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void skip(int n) throws IOException {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -109,11 +78,6 @@ class BytecodeInputWrapper implements BytecodeInput {
     }
 
     @Override
-    public long readLong() throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public float readFloat() throws IOException {
         float val = input.readFloat();
         size += 4;
@@ -128,19 +92,9 @@ class BytecodeInputWrapper implements BytecodeInput {
             b = readUnsignedByte();
             baos.write(b);
         } while (b != 0);
-        String s = baos.toString(getCharset().name());
+        String s = baos.toString(input.getCharset().name());
         //size += s.length();
         return s.substring(0, s.length() - 1);
-    }
-
-    @Override
-    public String readUTF() throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public byte[] readByteArray() throws IOException {
-        throw new UnsupportedOperationException();
     }
 
     public Token readToken() throws IOException {

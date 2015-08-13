@@ -26,6 +26,8 @@ import acmi.l2.clientmod.unreal.bytecode.BytecodeOutput;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class FinalFunction extends Token {
     public static final int OPCODE = 0x1c;
@@ -36,6 +38,14 @@ public class FinalFunction extends Token {
     public FinalFunction(int funcRef, Token... params) {
         this.funcRef = funcRef;
         this.params = params;
+    }
+
+    @Override
+    public String toString() {
+        return "FinalFunction("
+                + funcRef
+                + (params == null || params.length == 0 ? "" : ", " + Arrays.stream(params).map(Objects::toString).collect(Collectors.joining(", ")))
+                + ')';
     }
 
     public static FinalFunction readFrom(BytecodeInput input) throws IOException {
@@ -62,11 +72,4 @@ public class FinalFunction extends Token {
         output.writeFunctionParams(params);
     }
 
-    @Override
-    public String toString() {
-        return "FinalFunction{" +
-                "funcRef=" + funcRef +
-                ", params=" + Arrays.toString(params) +
-                '}';
-    }
 }

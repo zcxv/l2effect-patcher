@@ -68,10 +68,10 @@ public class RotatorConst extends Token {
 
     @Override
     public String toString() {
-        return "RotatorConst{" +
-                "pitch=" + pitch +
-                ", yaw=" + yaw +
-                ", roll=" + roll +
-                '}';
+        return "RotatorConst("
+                + pitch
+                + ", " + yaw
+                + ", " + roll
+                + ')';
     }
 }

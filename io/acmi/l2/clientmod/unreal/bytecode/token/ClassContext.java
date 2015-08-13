@@ -61,11 +61,11 @@ public class ClassContext extends Token {
 
     @Override
     public String toString() {
-        return "ClassContext{" +
-                "token1=" + token1 +
-                ", wSkip=" + wSkip +
-                ", bSize=" + bSize +
-                ", token2=" + token2 +
-                '}';
+        return "ClassContext("
+                + token1
+                + ", " + wSkip
+                + ", " + bSize
+                + ", " + token2
+                + ')';
     }
 }

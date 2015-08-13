@@ -56,8 +56,8 @@ public class GlobalFunction extends Token {
 
     @Override
     public String toString() {
-        return "GlobalFunction{" +
-                "nameRef=" + nameRef +
-                '}';
+        return "GlobalFunction("
+                + nameRef
+                + ')';
     }
 }

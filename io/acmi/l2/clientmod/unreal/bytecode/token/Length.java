@@ -56,8 +56,8 @@ public class Length extends Token {
 
     @Override
     public String toString() {
-        return "Length{" +
-                "value=" + value +
-                '}';
+        return "Length("
+                + value
+                + ')';
     }
 }
