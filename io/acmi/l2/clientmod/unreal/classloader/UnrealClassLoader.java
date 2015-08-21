@@ -51,7 +51,7 @@ public class UnrealClassLoader {
         return propertiesUtil;
     }
 
-    private Optional<? extends UnrealPackageReadOnly.ExportEntry> getExportEntry(String name, Predicate<UnrealPackageReadOnly.ExportEntry> condition) throws UnrealException {
+    public Optional<? extends UnrealPackageReadOnly.ExportEntry> getExportEntry(String name, Predicate<UnrealPackageReadOnly.ExportEntry> condition) throws UnrealException {
         if (name == null)
             return Optional.empty();
 
@@ -169,6 +169,7 @@ public class UnrealClassLoader {
     }
 
     public Field loadField(UnrealPackageReadOnly.ExportEntry entry) {
+
         try {
             DataInput buffer = new DataInputStream(new ByteArrayInputStream(entry.getObjectRawDataExternally()), entry.getUnrealPackage().getCharset());
 
