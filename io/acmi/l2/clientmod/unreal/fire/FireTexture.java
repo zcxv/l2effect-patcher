@@ -19,37 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package acmi.l2.clientmod.unreal.objectfactory;
+package acmi.l2.clientmod.unreal.fire;
 
 import acmi.l2.clientmod.io.DataInput;
 import acmi.l2.clientmod.io.DataOutput;
 import acmi.l2.clientmod.io.UnrealPackageReadOnly;
+import acmi.l2.clientmod.unreal.classloader.L2Property;
 import acmi.l2.clientmod.unreal.classloader.PropertiesUtil;
 
 import java.io.IOException;
+import java.util.List;
 
-public class AsIsObject extends acmi.l2.clientmod.unreal.core.Object {
-    private byte[] body;
+public class FireTexture extends FractalTexture {
+    private List<L2Property>[] sparks;
 
-    public AsIsObject(DataInput input, UnrealPackageReadOnly.ExportEntry entry, PropertiesUtil propertiesUtil) throws IOException {
+    public FireTexture(DataInput input, UnrealPackageReadOnly.ExportEntry entry, PropertiesUtil propertiesUtil) throws IOException {
         super(input, entry, propertiesUtil);
 
-        body = new byte[entry.getOffset() + entry.getSize() - input.getPosition()];
-        input.readFully(body);
+        sparks = new List[input.readUnsignedByte()];
+        for (int i = 0; i < sparks.length; i++)
+            sparks[i] = propertiesUtil.readStructBin(input, "Fire.FireTexture.Spark", entry.getUnrealPackage());
     }
 
     @Override
     public void writeTo(DataOutput output, PropertiesUtil propertiesUtil) throws IOException {
         super.writeTo(output, propertiesUtil);
 
-        output.write(body);
+        output.writeCompactInt(sparks.length);
+        for (List<L2Property> spark : sparks)
+            propertiesUtil.writeStructBin(output, spark, "Fire.FireTexture.Spark", getEntry().getUnrealPackage());
     }
 
-    public byte[] getBody() {
-        return body;
-    }
-
-    public boolean isEmptyBody() {
-        return body.length == 0;
+    public List<L2Property>[] getSparks() {
+        return sparks;
     }
 }
