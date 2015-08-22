@@ -4,27 +4,27 @@ import java.util.List;
 
 import acmi.l2.clientmod.io.UnrealPackageFile;
 import acmi.l2.clientmod.unreal.classloader.L2Property;
-import acmi.l2.clientmod.unreal.objectfactory.AsIsObject;
+import acmi.l2.clientmod.unreal.core.Object;
 
 /**
  * @author PointerRage
  *
  */
 public abstract class Patch {
-	private List<AsIsObject> objects;
+	private List<Object> objects;
 	
 	public abstract void patch(UnrealPackageFile upf, L2Property property, String value);
 	
-	protected List<AsIsObject> getObjects() {
+	protected List<Object> getObjects() {
 		return objects;
 	}
 	
-	public void setObjects(List<AsIsObject> objects) {
+	public void setObjects(List<Object> objects) {
 		this.objects = objects;
 	}
 	
 	
-	protected void printf(String line, Object...args) {
+	protected void printf(String line, java.lang.Object...args) {
 		System.out.printf(line, args);
 	}
 	

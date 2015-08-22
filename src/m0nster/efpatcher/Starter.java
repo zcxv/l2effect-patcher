@@ -23,6 +23,7 @@ import acmi.l2.clientmod.unreal.classloader.FolderPackageLoader;
 import acmi.l2.clientmod.unreal.classloader.L2Property;
 import acmi.l2.clientmod.unreal.classloader.PropertiesUtil.Type;
 import acmi.l2.clientmod.unreal.classloader.UnrealClassLoader;
+import acmi.l2.clientmod.unreal.core.Object;
 import acmi.l2.clientmod.unreal.objectfactory.AsIsObject;
 import acmi.l2.clientmod.unreal.objectfactory.ObjectFactory;
 
@@ -107,13 +108,12 @@ public class Starter {
 			out("-- Read depends");
 			final String objectName = reqObjectName;
 			
-			List<AsIsObject> exports = upf.getExportTable().stream()
+			List<Object> exports = upf.getExportTable().stream()
+				.filter(e -> e.getObjectClass() != null)
 				.map(oFactory)
-				.filter(e -> e instanceof AsIsObject)
-				.map(e -> (AsIsObject)e)
 				.collect(Collectors.toList());
 			
-			AsIsObject uobj = Util.findExport(exports, objectName);	
+			Object uobj = Util.findExport(exports, objectName);
 			if(uobj == null) {
 				out("Object not found");
 				return;
@@ -143,8 +143,8 @@ public class Starter {
 			{
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				DataOutput dao = new DataOutputStream(baos, upf.getCharset());
-				classLoader.getPropertiesUtil().writeProperties(dao, properties, upf);
-				out(Util.printData(baos.toByteArray()));
+                uobj.writeTo(dao, classLoader.getPropertiesUtil());
+                out(Util.printData(baos.toByteArray()));
 				((ExportEntry)uobj.getEntry()).setObjectRawData(baos.toByteArray(), true);
 			}
 			
