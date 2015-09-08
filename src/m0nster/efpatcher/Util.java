@@ -4,7 +4,7 @@ import java.util.List;
 
 import acmi.l2.clientmod.unreal.classloader.L2Property;
 import acmi.l2.clientmod.unreal.classloader.PropertiesUtil.Type;
-import acmi.l2.clientmod.unreal.objectfactory.AsIsObject;
+import acmi.l2.clientmod.unreal.core.Object;
 
 /**
  * @author PointerRage
@@ -13,7 +13,7 @@ import acmi.l2.clientmod.unreal.objectfactory.AsIsObject;
 public class Util {
 	private Util() {}
 	
-	public static boolean isActiveReference(List<AsIsObject> objects, Type type, int ref, L2Property except) {
+	public static boolean isActiveReference(List<Object> objects, Type type, int ref, L2Property except) {
 		if(!isReferenced(type))
 			return true;
 		
@@ -24,7 +24,7 @@ public class Util {
 			.anyMatch(prop -> (int)prop.getAt(0) == ref);
 	}
 	
-	public static AsIsObject findExport(List<AsIsObject> objects, String name) {
+	public static Object findExport(List<Object> objects, String name) {
 		return objects.stream()
 				.filter(e -> e.getEntry().getObjectInnerFullName().equals(name))
 				.findAny()

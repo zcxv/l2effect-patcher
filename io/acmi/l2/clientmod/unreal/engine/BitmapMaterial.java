@@ -19,37 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package acmi.l2.clientmod.unreal.objectfactory;
+package acmi.l2.clientmod.unreal.engine;
 
 import acmi.l2.clientmod.io.DataInput;
-import acmi.l2.clientmod.io.DataOutput;
 import acmi.l2.clientmod.io.UnrealPackageReadOnly;
 import acmi.l2.clientmod.unreal.classloader.PropertiesUtil;
 
 import java.io.IOException;
 
-public class AsIsObject extends acmi.l2.clientmod.unreal.core.Object {
-    private byte[] body;
-
-    public AsIsObject(DataInput input, UnrealPackageReadOnly.ExportEntry entry, PropertiesUtil propertiesUtil) throws IOException {
+public class BitmapMaterial extends RenderedMaterial {
+    public BitmapMaterial(DataInput input, UnrealPackageReadOnly.ExportEntry entry, PropertiesUtil propertiesUtil) throws IOException {
         super(input, entry, propertiesUtil);
-
-        body = new byte[entry.getOffset() + entry.getSize() - input.getPosition()];
-        input.readFully(body);
-    }
-
-    @Override
-    public void writeTo(DataOutput output, PropertiesUtil propertiesUtil) throws IOException {
-        super.writeTo(output, propertiesUtil);
-
-        output.write(body);
-    }
-
-    public byte[] getBody() {
-        return body;
-    }
-
-    public boolean isEmptyBody() {
-        return body.length == 0;
     }
 }

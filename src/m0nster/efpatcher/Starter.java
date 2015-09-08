@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import acmi.l2.clientmod.unreal.core.ByteProperty;
 import m0nster.efpatcher.patch.BytePatch;
 import m0nster.efpatcher.patch.EnumPatch;
 import m0nster.efpatcher.patch.NamePatch;
@@ -22,6 +23,7 @@ import acmi.l2.clientmod.unreal.classloader.FolderPackageLoader;
 import acmi.l2.clientmod.unreal.classloader.L2Property;
 import acmi.l2.clientmod.unreal.classloader.PropertiesUtil.Type;
 import acmi.l2.clientmod.unreal.classloader.UnrealClassLoader;
+import acmi.l2.clientmod.unreal.core.Object;
 import acmi.l2.clientmod.unreal.objectfactory.AsIsObject;
 import acmi.l2.clientmod.unreal.objectfactory.ObjectFactory;
 
@@ -31,11 +33,11 @@ import acmi.l2.clientmod.unreal.objectfactory.ObjectFactory;
  */
 public class Starter {
 	private final static Consumer<? super Entry> view = entry -> System.out.println(entry.getObjectInnerFullName());
-	
+
 	public static void main(String...args) throws Throwable {
 		String reqObjectName = "mb.SkillAction_LocateEffect0";
 		String reqField = "AttachOn";
-		String replace = "LineageEffect.su_sleep_ta";
+		String replace = "EAM_BoneSpecified";
 		String file = "skill.usk";
 		boolean showAll = false;
 		
@@ -106,13 +108,12 @@ public class Starter {
 			out("-- Read depends");
 			final String objectName = reqObjectName;
 			
-			List<AsIsObject> exports = upf.getExportTable().stream()
+			List<Object> exports = upf.getExportTable().stream()
+				.filter(e -> e.getObjectClass() != null)
 				.map(oFactory)
-				.filter(e -> e instanceof AsIsObject)
-				.map(e -> (AsIsObject)e)
 				.collect(Collectors.toList());
 			
-			AsIsObject uobj = Util.findExport(exports, objectName);	
+			Object uobj = Util.findExport(exports, objectName);
 			if(uobj == null) {
 				out("Object not found");
 				return;
@@ -126,7 +127,7 @@ public class Starter {
 			for(L2Property prop : properties) {
 				if(prop.getName().equals(reqField)) {
 					out("\t" + prop.toString());
-					Patch patch = createPatch(prop);
+					Patch patch = createPatch(prop, classLoader);
 					patch.setObjects(exports);
 					try {
 						patch.patch(upf, prop, replace);
@@ -142,8 +143,8 @@ public class Starter {
 			{
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				DataOutput dao = new DataOutputStream(baos, upf.getCharset());
-				classLoader.getPropertiesUtil().writeProperties(dao, properties, upf);
-				out(Util.printData(baos.toByteArray()));
+                uobj.writeTo(dao, classLoader.getPropertiesUtil());
+                out(Util.printData(baos.toByteArray()));
 				((ExportEntry)uobj.getEntry()).setObjectRawData(baos.toByteArray(), true);
 			}
 			
@@ -151,13 +152,13 @@ public class Starter {
 		}
 	}
 	
-	private static Patch createPatch(L2Property property) {
+	private static Patch createPatch(L2Property property, UnrealClassLoader classLoader) {
 		switch (property.getType()) {
 		case OBJECT:
 			return new ObjectPatch();
 		case BYTE:
-			if(property.getName().equals("AttachOn")) {
-				return new EnumPatch();
+			if(((ByteProperty)property.getTemplate()).getEnumType() != null) {
+				return new EnumPatch(classLoader);
 			}
 			return new BytePatch();
 		case NAME:
